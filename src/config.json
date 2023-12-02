@@ -1,0 +1,7 @@
+{
+    "local_path": "test\\", 
+    "match": [],
+    "ignore": ["~*", "*.pyc"],
+    "max_files_to_crawl": -1,
+    "output_file_name": "KB.json"
+}
