@@ -18,6 +18,7 @@ with open(config_path, 'r', encoding='utf-8') as config_file:
 local_path = config["local_path"]
 output_file_name = config["output_file_name"]
 ignore_patterns = config["ignore"]
+max_size_mb = config["max_size_mb"]
 
 def extract_text_from_pdf(file_path):
     with pdfplumber.open(file_path) as pdf:
@@ -97,12 +98,43 @@ def get_files_in_directory(directory_path, ignore_patterns):
 # 使用 get_files_in_directory 函数来生成檔案列表
 list_of_files_to_crawl = get_files_in_directory(local_path, ignore_patterns)
 
-# 爬取文件並保存結果
+def write_to_file(data, base_filename, max_size_mb, encoding='utf-8'):
+    # 初始文件索引
+    file_index = 1
+    # 数据分块大小
+    chunk_size = 1024 * 1024 * max_size_mb # 将MB转换为字节
+    # 初始化当前块
+    current_chunk = []
+    current_size = 0
+    
+    for item in data:
+        item_size = len(json.dumps(item, ensure_ascii=False).encode(encoding))
+        if current_size + item_size > chunk_size:
+            # 当前块的大小已经超过限制，写入文件
+            filename = f'{base_filename}_{file_index}.json'
+            with open(filename, 'w', encoding=encoding) as f:
+                json.dump(current_chunk, f, ensure_ascii=False, indent=4)
+            # 重置当前块和大小计数器
+            current_chunk = [item]
+            current_size = item_size
+            file_index += 1
+        else:
+            # 将当前项目添加到块中
+            current_chunk.append(item)
+            current_size += item_size
+    
+    # 写入最后一个文件（如果有剩余数据）
+    if current_chunk:
+        filename = f'{base_filename}_{file_index}.json'
+        with open(filename, 'w', encoding=encoding) as f:
+            json.dump(current_chunk, f, ensure_ascii=False, indent=4)
+
+# 爬取文件并保存结果
 crawled_data = []
 for file_path in list_of_files_to_crawl:
     file_contents = get_local_file_content(file_path)
     crawled_data.append(file_contents)
 
-# 將結果保存為 JSON 檔案
-with open(output_file_name, 'w', encoding='utf-8') as f:
-    json.dump(crawled_data, f, ensure_ascii=False, indent=4)
+# 写入文件
+base_output_file_name = os.path.splitext(output_file_name)[0]  # 不包含副檔名
+write_to_file(crawled_data, base_output_file_name, max_size_mb)
