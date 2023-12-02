@@ -1,0 +1,51 @@
+[
+    {
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.docx",
+        "content": [
+            {
+                "text": "這是Word檔第1頁的內容",
+                "page_number": 1
+            },
+            {
+                "text": "這是Word檔第2頁的內容",
+                "page_number": 3
+            }
+        ]
+    },
+    {
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.pdf",
+        "content": [
+            {
+                "text": "這是PDF的第1頁內容",
+                "page_number": 1
+            },
+            {
+                "text": "這是PDF的第2頁內容",
+                "page_number": 2
+            }
+        ]
+    },
+    {
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.txt",
+        "content": {
+            "text": "This is a test TXT file."
+        }
+    },
+    {
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.xlsx",
+        "content": [
+            {
+                "sheet_name": "Sheet1",
+                "contents": "This is Excel檔Sheet1\n的\n內容"
+            },
+            {
+                "sheet_name": "Sheet2",
+                "contents": "This is Excel檔Sheet2的內容"
+            }
+        ]
+    },
+    {
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test_crawler.py",
+        "content": "****尚未支援py類型的檔案****"
+    }
+]
