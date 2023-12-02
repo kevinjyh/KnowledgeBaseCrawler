@@ -7,7 +7,7 @@ import openpyxl
 
 # 將支援的擴展名設為全局變量
 supported_extensions = ['pdf', 'docx', 'doc', 'xlsx', 'xls', 'txt', 'md', 'html']
-
+local_path = 'test/'
 
 def extract_text_from_pdf(file_path):
     with pdfplumber.open(file_path) as pdf:
@@ -43,7 +43,7 @@ def get_local_file_content(file_path):
         elif file_extension in ['txt', 'md', 'html']:
             content = extract_text_from_txt(full_path)
     else:
-        content = f"****尚未支援{file_extension}類型的檔案****"
+        content = None  # f"****尚未支援{file_extension}類型的檔案****"
     
     return {
         'file_path': full_path,  # 使用完整路徑
@@ -51,16 +51,17 @@ def get_local_file_content(file_path):
     }
 
 def get_files_in_directory(directory_path):
-    """獲取指定目錄下的所有檔案名稱"""
+    """获取指定目录及其子目录下的所有文件名"""
     files = []
-    for filename in os.listdir(directory_path):
-        if os.path.isfile(os.path.join(directory_path, filename)):
-            files.append(os.path.join(directory_path, filename))
+    for root, dirs, files_in_dir in os.walk(directory_path):
+        for filename in files_in_dir:
+            file_path = os.path.join(root, filename)
+            if os.path.isfile(file_path):
+                files.append(file_path)
     return files
 
 # 使用 get_files_in_directory 函数来生成檔案列表
-test_directory_path = 'test/'
-list_of_files_to_crawl = get_files_in_directory(test_directory_path)
+list_of_files_to_crawl = get_files_in_directory(local_path)
 
 # 爬取文件並保存結果
 crawled_data = []

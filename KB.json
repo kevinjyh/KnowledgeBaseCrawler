@@ -52,6 +52,14 @@
     },
     {
         "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test_crawler.py",
-        "content": "****尚未支援py類型的檔案****"
+        "content": null
+    },
+    {
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\__pycache__\\test_crawler.cpython-310-pytest-7.2.2.pyc",
+        "content": null
+    },
+    {
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\__pycache__\\test_crawler.cpython-310.pyc",
+        "content": null
     }
 ]
