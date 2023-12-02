@@ -11,6 +11,7 @@ class FileExtractor:
         self.local_path = self.config["local_path"]
         self.ignore_patterns = self.config["ignore"]
         self.max_size_mb = self.config["max_size_mb"]
+        self.output_file_name = self.config["output_file_name"]
 
     @staticmethod
     def load_config(config_path):
@@ -137,8 +138,19 @@ class FileExtractor:
             with open(filename, 'w', encoding=encoding) as f:
                 json.dump(current_chunk, f, ensure_ascii=False, indent=4)
 
+    def crawl(self):
+        list_of_files_to_crawl = self.get_files_in_directory(self.local_path)
+        # 爬取文件并保存结果
+        crawled_data = []
+        for file_path in list_of_files_to_crawl:
+            file_contents = self.get_local_file_content(file_path)
+            crawled_data.append(file_contents)
+        # 写入文件
+        base_output_file_name = os.path.splitext(self.output_file_name)[0]  # 不包含副檔名
+        self.write_to_file(crawled_data, base_output_file_name, self.max_size_mb)
+
 
 # Main execution
 if __name__ == "__main__":
-    extractor = FileExtractor()
-    list_of_files_to_crawl = extractor.get_files_in_directory(extractor.local_path)
+    FileExtractor().crawl()
+    
