@@ -1,6 +1,8 @@
 import concurrent.futures
 import hashlib
 import os
+import logging
+from datetime import datetime
 import threading
 from functools import lru_cache
 import json
@@ -19,20 +21,52 @@ class FileExtractor:
         # 初始化緩存大小和鎖
         self.file_id_cache = lru_cache(maxsize=10000)
         self.lock = threading.Lock()
+        # 設置日誌
+        logging.basicConfig(filename='src/updated.log',  # 根目錄下的日誌文件
+                            level=logging.INFO,
+                            format='%(asctime)s - %(levelname)s - %(message)s')
+
+    def load_existing_data(self):
+        existing_data = []
+        for filename in os.listdir(self.local_path):
+            if filename.startswith("KB_") and filename.endswith(".json"):
+                with open(os.path.join(self.local_path, filename), 'r', encoding='utf-8') as file:
+                    data = json.load(file)
+                    existing_data.extend(data)
+        return existing_data
+
+    def file_id_exists(self, file_id, existing_data):
+        return any(item['file_id'] == file_id for item in existing_data)
 
     def process_files(self):
-        files = self.get_files_in_directory(self.local_path)
+        # 获取当前时间，格式化为完整日期和24小时制时间
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # 创建分隔线，包含当前时间
+        separator = '=' * 20 + f' {current_time} ' + '=' * 20
+        
+        # 在日志文件中记录分隔线
+        logging.info(separator)
+        
+        existing_data = self.load_existing_data()
         crawled_data = []
+        files = self.get_files_in_directory(self.local_path)
+
+        updated_files = []
+        files = self.get_files_in_directory(self.local_path)
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = {executor.submit(self.get_local_file_content, file): file for file in files}
             for future in concurrent.futures.as_completed(futures):
+                file = futures[future]
                 try:
                     data = future.result()
-                    crawled_data.append(data)
+                    if not self.file_id_exists(data['file_id'], existing_data):
+                        crawled_data.append(data)
+                        updated_files.append(file)
+                        logging.info(f'Updated file: {file}')
                 except Exception as exc:
-                    print(f'File processing generated an exception: {exc}')
-        
-        # 現在所有文件已經處理完畢，可以將聚合的數據寫入文件
+                    logging.error(f'File processing generated an exception: {file}, {exc}')
+
         base_output_file_name = os.path.splitext(self.output_file_name)[0]  # 不包含副檔名
         self.write_to_file(crawled_data, base_output_file_name, self.max_size_mb)
 
