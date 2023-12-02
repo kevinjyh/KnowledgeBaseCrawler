@@ -12,10 +12,11 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: "3.x"
-      - name: Install dependencies
+      - name: 安裝依賴
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Test with unittest
+      - name: 使用 unittest 進行測試
         run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/src
           python test/test_crawler.py

@@ -3,6 +3,7 @@ import os
 import json
 import pdfplumber
 from docx import Document
+from datetime import datetime
 import openpyxl
 import fnmatch
 
@@ -52,7 +53,16 @@ def extract_tables_from_docx(file_path):
 
 def extract_text_from_xlsx(file_path):
     workbook = openpyxl.load_workbook(file_path, read_only=True)
-    return [{'sheet_name': sheet.title, 'contents': '\n'.join(cell.value if cell.value is not None else '' for row in sheet for cell in row)} for sheet in workbook.worksheets]
+    data = []
+    for sheet in workbook.worksheets:
+        sheet_data = {
+            'sheet_name': sheet.title,
+            'contents': '\n'.join(
+                (str(cell.value) if cell.value is not None else '') for row in sheet for cell in row
+            )
+        }
+        data.append(sheet_data)
+    return data
 
 def extract_text_from_txt(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:

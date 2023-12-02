@@ -1,16 +1,8 @@
 
-import sys, os, json
-from pathlib import Path
-
-# 確保將 src 目錄添加到 sys.path 中
-current_dir = Path(__file__).parent
-src_dir = current_dir.parent / 'src'
-test_dir = current_dir.parent / 'test'
-sys.path.append(str(src_dir))
-sys.path.append(str(test_dir))
-
+import json
+import os
 import unittest
-from crawler import write_to_file, extract_text_from_pdf, extract_text_from_docx, extract_text_from_xlsx, extract_text_from_txt, get_local_file_content
+from src.crawler import write_to_file, extract_text_from_pdf, extract_text_from_docx, extract_text_from_xlsx, extract_text_from_txt, get_local_file_content
 
 class TestCrawlerFunctions(unittest.TestCase):
 
