@@ -4,6 +4,47 @@ import os
 import unittest
 from src.crawler import FileExtractor
 
+class TestFileExtractor(unittest.TestCase):
+
+    def test_generate_file_id(self):
+        # 創建一個臨時文件來測試
+        with open('temp_test_file.txt', 'w') as f:
+            f.write('Some test content')
+
+        # 實例化 FileExtractor 並生成文件 ID
+        extractor = FileExtractor()
+        file_id = extractor.generate_file_id('temp_test_file.txt')
+
+        # 檢查 file_id 是否為預期長度的字符串（SHA-1 雜湊的長度）
+        self.assertEqual(len(file_id), 40)
+
+        # 清理臨時文件
+        os.remove('temp_test_file.txt')
+
+class TestFileExtractorProcessFiles(unittest.TestCase):
+
+    def setUp(self):
+        # 創建一個用於測試的目錄和文件
+        os.mkdir('test_dir')
+        with open('test_dir/temp_test_file_1.txt', 'w') as f:
+            f.write('Test content 1')
+        with open('test_dir/temp_test_file_2.txt', 'w') as f:
+            f.write('Test content 2')
+
+    def test_process_files(self):
+        # 實例化 FileExtractor 並處理文件
+        extractor = FileExtractor()
+        extractor.local_path = 'test_dir'
+        extractor.process_files()
+
+        # 寫入此處您的檢查邏輯，例如檢查是否創建了相應的輸出文件
+
+    def tearDown(self):
+        # 清理創建的測試文件和目錄
+        os.remove('test_dir/temp_test_file_1.txt')
+        os.remove('test_dir/temp_test_file_2.txt')
+        os.rmdir('test_dir')
+
 class TestCrawlerFunctions(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

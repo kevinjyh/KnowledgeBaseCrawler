@@ -1,4 +1,8 @@
+import concurrent.futures
+import hashlib
 import os
+import threading
+from functools import lru_cache
 import json
 import pdfplumber
 from docx import Document
@@ -12,6 +16,69 @@ class FileExtractor:
         self.ignore_patterns = self.config["ignore"]
         self.max_size_mb = self.config["max_size_mb"]
         self.output_file_name = self.config["output_file_name"]
+        # 初始化緩存大小和鎖
+        self.file_id_cache = lru_cache(maxsize=10000)
+        self.lock = threading.Lock()
+
+    def process_files(self):
+        files = self.get_files_in_directory(self.local_path)
+        crawled_data = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            futures = {executor.submit(self.get_local_file_content, file): file for file in files}
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    data = future.result()
+                    crawled_data.append(data)
+                except Exception as exc:
+                    print(f'File processing generated an exception: {exc}')
+        
+        # 現在所有文件已經處理完畢，可以將聚合的數據寫入文件
+        base_output_file_name = os.path.splitext(self.output_file_name)[0]  # 不包含副檔名
+        self.write_to_file(crawled_data, base_output_file_name, self.max_size_mb)
+
+    def get_local_file_content(self, file_path):
+        print(f"Crawling {file_path}")
+        full_path = os.path.abspath(file_path)
+        file_extension = os.path.splitext(file_path)[1].lower().strip('.')
+        content = {'text': [], 'tables': []}
+        if file_extension in ['pdf']:
+            content['text'] = self.extract_text_from_pdf(full_path)
+            content['tables'] = self.extract_tables_from_pdf(full_path)
+        elif file_extension in ['docx', 'doc']:
+            content['text'] = self.extract_text_from_docx(full_path)
+            content['tables'] = self.extract_tables_from_docx(full_path)
+        elif file_extension in ['xlsx', 'xls']:
+            content = self.extract_text_from_xlsx(full_path)
+        elif file_extension in ['txt', 'md', 'html']:
+            content = self.extract_text_from_txt(full_path)
+        else:
+            content = None  # f"****尚未支援{file_extension}類型的檔案****"
+        
+        # 在此生成或獲取緩存中的 file_id
+        with self.lock:
+            file_id = self.generate_file_id(file_path)
+
+        return {
+            'file_path': full_path,  # 使用完整路徑
+            'file_id': file_id,       # 添加 file_id
+            'content': content
+        }
+
+    @staticmethod
+    @lru_cache(maxsize=10000)
+    def generate_file_id(file_path):
+        try:
+            # 獲取文件的絕對路徑、創建日期和修改日期
+            absolute_path = os.path.abspath(file_path)
+            creation_time = os.path.getctime(file_path)
+            modification_time = os.path.getmtime(file_path)
+            # 串聯這些信息
+            data = f"{absolute_path}{creation_time}{modification_time}"
+            # 使用 SHA-1 生成雜湊
+            return hashlib.sha1(data.encode()).hexdigest()
+        except Exception as e:
+            print(f"Error generating file ID for {file_path}: {e}")
+            return None
 
     @staticmethod
     def load_config(config_path):
@@ -75,29 +142,6 @@ class FileExtractor:
         with open(file_path, 'r', encoding='utf-8') as file:
             return {'text': file.read()}
 
-    def get_local_file_content(self, file_path):
-        print(f"Crawling {file_path}")
-        full_path = os.path.abspath(file_path)
-        file_extension = os.path.splitext(file_path)[1].lower().strip('.')
-        content = {'text': [], 'tables': []}
-        if file_extension in ['pdf']:
-            content['text'] = self.extract_text_from_pdf(full_path)
-            content['tables'] = self.extract_tables_from_pdf(full_path)
-        elif file_extension in ['docx', 'doc']:
-            content['text'] = self.extract_text_from_docx(full_path)
-            content['tables'] = self.extract_tables_from_docx(full_path)
-        elif file_extension in ['xlsx', 'xls']:
-            content = self.extract_text_from_xlsx(full_path)
-        elif file_extension in ['txt', 'md', 'html']:
-            content = self.extract_text_from_txt(full_path)
-        else:
-            content = None  # f"****尚未支援{file_extension}類型的檔案****"
-        
-        return {
-            'file_path': full_path,  # 使用完整路徑
-            'content': content
-        }
-
     def get_files_in_directory(self, directory_path):
         files = []
         for root, dirs, files_in_dir in os.walk(directory_path):
@@ -139,15 +183,8 @@ class FileExtractor:
                 json.dump(current_chunk, f, ensure_ascii=False, indent=4)
 
     def crawl(self):
-        list_of_files_to_crawl = self.get_files_in_directory(self.local_path)
-        # 爬取文件并保存结果
-        crawled_data = []
-        for file_path in list_of_files_to_crawl:
-            file_contents = self.get_local_file_content(file_path)
-            crawled_data.append(file_contents)
-        # 写入文件
-        base_output_file_name = os.path.splitext(self.output_file_name)[0]  # 不包含副檔名
-        self.write_to_file(crawled_data, base_output_file_name, self.max_size_mb)
+        # 使用 process_files 來處理所有文件
+        self.process_files()    # 為了進行Unit test 所以保留這行
 
 
 # Main execution
