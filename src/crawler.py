@@ -17,7 +17,7 @@ class FileExtractor:
         self.local_path = self.config["local_path"]
         self.ignore_patterns = self.config["ignore"]
         self.max_size_mb = self.config["max_size_mb"]
-        self.output_file_name = self.config["output_file_name"]
+        self.base_output_file_name = os.path.splitext(self.config["output_file_name"])[0]  # 不包含副檔名
         # 初始化緩存大小和鎖
         self.file_id_cache = lru_cache(maxsize=10000)
         self.lock = threading.Lock()
@@ -28,9 +28,15 @@ class FileExtractor:
 
     def load_existing_data(self):
         existing_data = []
-        for filename in os.listdir(self.local_path):
-            if filename.startswith("KB_") and filename.endswith(".json"):
-                with open(os.path.join(self.local_path, filename), 'r', encoding='utf-8') as file:
+        # 获取当前脚本文件所在的目录
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # 在当前目录下搜索 JSON 文件
+        for filename in os.listdir(current_dir):
+            if filename.startswith(self.base_output_file_name + '_') and filename.endswith(".json"):
+                # 使用当前目录和文件名构造完整的文件路径
+                file_path = os.path.join(current_dir, filename)
+                with open(file_path, 'r', encoding='utf-8') as file:
                     data = json.load(file)
                     existing_data.extend(data)
         return existing_data
@@ -46,7 +52,7 @@ class FileExtractor:
         
         # 在日志文件中记录分隔线
         logging.info(separator)
-        
+
         existing_data = self.load_existing_data()
         crawled_data = []
         files = self.get_files_in_directory(self.local_path)
@@ -61,17 +67,18 @@ class FileExtractor:
                 try:
                     data = future.result()
                     if not self.file_id_exists(data['file_id'], existing_data):
+                        print(f"Crawling {file}")
                         crawled_data.append(data)
                         updated_files.append(file)
                         logging.info(f'Updated file: {file}')
+                    else:
+                        print('.', end='')
                 except Exception as exc:
                     logging.error(f'File processing generated an exception: {file}, {exc}')
 
-        base_output_file_name = os.path.splitext(self.output_file_name)[0]  # 不包含副檔名
-        self.write_to_file(crawled_data, base_output_file_name, self.max_size_mb)
+        self.write_to_file(crawled_data, self.base_output_file_name, self.max_size_mb)
 
     def get_local_file_content(self, file_path):
-        print(f"Crawling {file_path}")
         full_path = os.path.abspath(file_path)
         file_extension = os.path.splitext(file_path)[1].lower().strip('.')
         content = {'text': [], 'tables': []}
@@ -186,20 +193,24 @@ class FileExtractor:
         return files
 
     def write_to_file(self, data, base_filename, max_size_mb, encoding='utf-8'):
+        # 获取当前运行的 Python 文件的目录
+        directory = os.path.dirname(os.path.abspath(__file__))
+
         # 初始文件索引
         file_index = 1
         # 数据分块大小
-        chunk_size = 1024 * 1024 * max_size_mb # 将MB转换为字节
+        chunk_size = 1024 * 1024 * max_size_mb  # 将MB转换为字节
         # 初始化当前块
         current_chunk = []
         current_size = 0
-        
+
         for item in data:
             item_size = len(json.dumps(item, ensure_ascii=False).encode(encoding))
             if current_size + item_size > chunk_size:
                 # 当前块的大小已经超过限制，写入文件
                 filename = f'{base_filename}_{file_index}.json'
-                with open(filename, 'w', encoding=encoding) as f:
+                full_path = os.path.join(directory, filename)  # 构建完整的文件路径
+                with open(full_path, 'w', encoding=encoding) as f:
                     json.dump(current_chunk, f, ensure_ascii=False, indent=4)
                 # 重置当前块和大小计数器
                 current_chunk = [item]
@@ -209,11 +220,12 @@ class FileExtractor:
                 # 将当前项目添加到块中
                 current_chunk.append(item)
                 current_size += item_size
-        
+
         # 写入最后一个文件（如果有剩余数据）
         if current_chunk:
             filename = f'{base_filename}_{file_index}.json'
-            with open(filename, 'w', encoding=encoding) as f:
+            full_path = os.path.join(directory, filename)  # 构建完整的文件路径
+            with open(full_path, 'w', encoding=encoding) as f:
                 json.dump(current_chunk, f, ensure_ascii=False, indent=4)
 
     def crawl(self):

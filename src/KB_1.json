@@ -1,0 +1,16 @@
+[
+    {
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test_dir\\temp_test_file_1.txt",
+        "file_id": "dc7ce867b47e583d89d3d7a13990b28580f20481",
+        "content": {
+            "text": "Test content 1"
+        }
+    },
+    {
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test_dir\\temp_test_file_2.txt",
+        "file_id": "c44095eae3552018e9d3032f0db84028b60b7e6b",
+        "content": {
+            "text": "Test content 2"
+        }
+    }
+]

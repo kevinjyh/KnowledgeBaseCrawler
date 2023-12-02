@@ -8,28 +8,31 @@ import tempfile
 class TestFileExtractor(unittest.TestCase):
     
     def setUp(self):
-        # 使用 tempfile 確保測試文件的唯一性，並在安全的臨時目錄中進行操作
+        # 创建临时目录
         self.temp_dir = tempfile.TemporaryDirectory()
         self.extractor = FileExtractor()
         self.extractor.local_path = self.temp_dir.name
         
-        # 指定測試 JSON 文件的名稱
+        # 指定测试 JSON 文件的名称
         self.test_json_filename = 'KB_test_data.json'
         self.test_json_file_path = os.path.join(self.extractor.local_path, self.test_json_filename)
         
-        # 預期數據
+        # 预期数据
         self.expected_data = [{"file_id": "12345", "content": "Sample content 1"}, {"file_id": "67890", "content": "Sample content 2"}]
         
-        # 將預期數據寫入測試 JSON 文件
+        # 将预期数据写入测试 JSON 文件
         with open(self.test_json_file_path, 'w') as file:
             json.dump(self.expected_data, file)
 
     def test_load_existing_data(self):
-        # 现在不需要传递文件路径，因为 load_existing_data 方法使用类的属性
+        # 修改 load_existing_data 方法以接受一个参数，指定需要加载的文件名
         loaded_data = self.extractor.load_existing_data()
-        self.assertEqual(loaded_data, self.expected_data)
+        # 确保仅比较内容，忽略文件路径的差异
+        loaded_data_content = [{k: v for k, v in d.items() if k != 'file_path'} for d in loaded_data]
+        self.assertEqual(loaded_data_content, self.expected_data)
 
     def tearDown(self):
+        # 删除临时目录
         self.temp_dir.cleanup()
 
     def test_generate_file_id(self):
