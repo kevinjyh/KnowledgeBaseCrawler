@@ -13,6 +13,12 @@
         ]
     },
     {
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.md",
+        "content": {
+            "text": "\n# 爬蟲專案\n\n## 安裝與執行\n\n1. 複製此專案：\n   ```\n   git clone <Repo位址>\n   ```\n\n2. 建立並啟動虛擬環境：\n   ```\n   python -m venv venv\n   source venv/bin/activate  # 在Windows上使用 venv\\Scripts\\activate\n   ```\n\n3. 安裝所需類別庫：\n   ```\n   pip install -r requirements.txt\n   ```\n\n4. 執行爬蟲：\n   ```\n   python src/crawler.py\n   ```\n"
+        }
+    },
+    {
         "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.pdf",
         "content": [
             {

@@ -5,6 +5,10 @@ import pdfplumber
 from docx import Document
 import openpyxl
 
+# 將支援的擴展名設為全局變量
+supported_extensions = ['pdf', 'docx', 'doc', 'xlsx', 'xls', 'txt', 'md', 'html']
+
+
 def extract_text_from_pdf(file_path):
     with pdfplumber.open(file_path) as pdf:
         return [{'text': page.extract_text(), 'page_number': i+1} for i, page in enumerate(pdf.pages) if page.extract_text()]
@@ -23,25 +27,26 @@ def extract_text_from_txt(file_path):
 
 def get_local_file_content(file_path):
     print(f"Crawling {file_path}")
-    
+
+    # 獲取完整的檔案路徑
+    full_path = os.path.abspath(file_path)
     file_extension = os.path.splitext(file_path)[1].lower().lstrip('.')
-    supported_extensions = ['pdf', 'docx', 'xlsx', 'txt']
     content = None
     
     if file_extension in supported_extensions:
-        if file_extension == 'pdf':
-            content = extract_text_from_pdf(file_path)
-        elif file_extension == 'docx':
-            content = extract_text_from_docx(file_path)
-        elif file_extension == 'xlsx':
-            content = extract_text_from_xlsx(file_path)
-        elif file_extension == 'txt':
-            content = extract_text_from_txt(file_path)
+        if file_extension in ['pdf']:
+            content = extract_text_from_pdf(full_path)
+        elif file_extension in ['docx', 'doc']:
+            content = extract_text_from_docx(full_path)
+        elif file_extension in ['xlsx', 'xls']:
+            content = extract_text_from_xlsx(full_path)
+        elif file_extension in ['txt', 'md', 'html']:
+            content = extract_text_from_txt(full_path)
     else:
         content = f"****尚未支援{file_extension}類型的檔案****"
     
     return {
-        'file_path': os.path.abspath(file_path),  # 使用完整路徑
+        'file_path': full_path,  # 使用完整路徑
         'content': content
     }
 
