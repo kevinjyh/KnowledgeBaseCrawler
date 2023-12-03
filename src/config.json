@@ -1,5 +1,5 @@
 {
-    "local_path": "test\\", 
+    "crawl_path": "test\\", 
     "match": [],
     "ignore": ["~*", "*.pyc"],
     "output_file_name": "KB.json",

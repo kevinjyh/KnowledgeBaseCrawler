@@ -14,7 +14,7 @@ import fnmatch
 class FileExtractor:
     def __init__(self, config_path='src/config.json'):
         self.config = self.load_config(config_path)
-        self.local_path = self.config["local_path"]
+        self.crawl_path = self.config["crawl_path"]
         self.ignore_patterns = self.config["ignore"]
         self.max_size_mb = self.config["max_size_mb"]
         self.base_output_file_name = os.path.splitext(self.config["output_file_name"])[0]  # 不包含副檔名
@@ -45,20 +45,17 @@ class FileExtractor:
         return any(item['file_id'] == file_id for item in existing_data)
 
     def process_files(self):
-        # 获取当前时间，格式化为完整日期和24小时制时间
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        # 创建分隔线，包含当前时间
-        separator = '=' * 20 + f' {current_time} ' + '=' * 20
-        
         # 在日志文件中记录分隔线
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        separator = '=' * 20 + f' {current_time} ' + '=' * 20
         logging.info(separator)
 
         existing_data = self.load_existing_data()
         crawled_data = []
-        files = self.get_files_in_directory(self.local_path)
+        files = self.get_files_in_directory(self.crawl_path)
 
         updated_files = []
-        files = self.get_files_in_directory(self.local_path)
+        files = self.get_files_in_directory(self.crawl_path)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = {executor.submit(self.get_local_file_content, file): file for file in files}
@@ -76,7 +73,23 @@ class FileExtractor:
                 except Exception as exc:
                     logging.error(f'File processing generated an exception: {file}, {exc}')
 
-        self.write_to_file(crawled_data, self.base_output_file_name, self.max_size_mb)
+        self.write_to_file(crawled_data, None, self.base_output_file_name, self.max_size_mb)
+
+    @staticmethod
+    @lru_cache(maxsize=10000)
+    def generate_file_id(file_path):
+        try:
+            # 獲取文件的絕對路徑、創建日期和修改日期
+            absolute_path = os.path.abspath(file_path)
+            creation_time = os.path.getctime(file_path)
+            modification_time = os.path.getmtime(file_path)
+            # 串聯這些信息
+            data = f"{absolute_path}{creation_time}{modification_time}"
+            # 使用 SHA-1 生成雜湊
+            return hashlib.sha1(data.encode()).hexdigest()
+        except Exception as e:
+            print(f"Error generating file ID for {file_path}: {e}")
+            return None
 
     def get_local_file_content(self, file_path):
         full_path = os.path.abspath(file_path)
@@ -104,22 +117,6 @@ class FileExtractor:
             'file_id': file_id,       # 添加 file_id
             'content': content
         }
-
-    @staticmethod
-    @lru_cache(maxsize=10000)
-    def generate_file_id(file_path):
-        try:
-            # 獲取文件的絕對路徑、創建日期和修改日期
-            absolute_path = os.path.abspath(file_path)
-            creation_time = os.path.getctime(file_path)
-            modification_time = os.path.getmtime(file_path)
-            # 串聯這些信息
-            data = f"{absolute_path}{creation_time}{modification_time}"
-            # 使用 SHA-1 生成雜湊
-            return hashlib.sha1(data.encode()).hexdigest()
-        except Exception as e:
-            print(f"Error generating file ID for {file_path}: {e}")
-            return None
 
     @staticmethod
     def load_config(config_path):
@@ -192,9 +189,9 @@ class FileExtractor:
                     files.append(file_path)
         return files
 
-    def write_to_file(self, data, base_filename, max_size_mb, encoding='utf-8'):
-        # 获取当前运行的 Python 文件的目录
-        directory = os.path.dirname(os.path.abspath(__file__))
+    def write_to_file(self, data, directory, base_filename, max_size_mb, encoding='utf-8'):
+        if directory is None:
+            directory = os.path.dirname(os.path.abspath(__file__))
 
         # 初始文件索引
         file_index = 1

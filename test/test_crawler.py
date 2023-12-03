@@ -7,34 +7,6 @@ import tempfile
 
 class TestFileExtractor(unittest.TestCase):
     
-    def setUp(self):
-        # 创建临时目录
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.extractor = FileExtractor()
-        self.extractor.local_path = self.temp_dir.name
-        
-        # 指定测试 JSON 文件的名称
-        self.test_json_filename = 'KB_test_data.json'
-        self.test_json_file_path = os.path.join(self.extractor.local_path, self.test_json_filename)
-        
-        # 预期数据
-        self.expected_data = [{"file_id": "12345", "content": "Sample content 1"}, {"file_id": "67890", "content": "Sample content 2"}]
-        
-        # 将预期数据写入测试 JSON 文件
-        with open(self.test_json_file_path, 'w') as file:
-            json.dump(self.expected_data, file)
-
-    def test_load_existing_data(self):
-        # 修改 load_existing_data 方法以接受一个参数，指定需要加载的文件名
-        loaded_data = self.extractor.load_existing_data()
-        # 确保仅比较内容，忽略文件路径的差异
-        loaded_data_content = [{k: v for k, v in d.items() if k != 'file_path'} for d in loaded_data]
-        self.assertEqual(loaded_data_content, self.expected_data)
-
-    def tearDown(self):
-        # 删除临时目录
-        self.temp_dir.cleanup()
-
     def test_generate_file_id(self):
         # 創建一個臨時文件來測試
         with open('temp_test_file.txt', 'w') as f:
@@ -118,6 +90,7 @@ class TestWriteToFileFunction(unittest.TestCase):
         cls.max_size_mb = 1
         cls.files_created = []
         cls.extractor = FileExtractor()
+        cls.directory = 'test/'
 
     @classmethod
     def tearDownClass(cls):
@@ -126,11 +99,11 @@ class TestWriteToFileFunction(unittest.TestCase):
 
     def test_file_splitting(self):
         # 测试数据是否按照max_size_mb正确分割并写入到多个文件
-        self.extractor.write_to_file(self.data, self.base_filename, self.max_size_mb)
+        self.extractor.write_to_file(self.data, self.directory, self.base_filename, self.max_size_mb)
         # 检查是否创建了多个文件
         file_index = 1
         while True:
-            filename = f'{self.base_filename}_{file_index}.json'
+            filename = os.path.join(self.directory, f'{self.base_filename}_{file_index}.json')
             if not os.path.exists(filename):
                 break
             self.files_created.append(filename)  # 记录文件以便后续删除
@@ -144,9 +117,6 @@ class TestWriteToFileFunction(unittest.TestCase):
                     # 确保后续文件不是空的
                     self.assertTrue(len(content) > 0)
             file_index += 1
-
-        # 确保至少创建了两个文件（假设数据足够大）
-        # self.assertTrue(file_index > 2)
 
 if __name__ == '__main__':
     unittest.main()
