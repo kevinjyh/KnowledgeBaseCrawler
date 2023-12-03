@@ -1,31 +1,31 @@
 [
     {
-        "file_path": "c:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.md",
-        "file_id": "30a14e73693ff28a46eb9923664ae71cf28776d0",
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.md",
+        "file_id": "a6f47477a745da70a333c9a288b3fedb5af91ca0",
         "content": {
             "text": "\n# 爬蟲專案\n\n## 安裝與執行\n\n1. 複製此專案：\n   ```\n   git clone <Repo位址>\n   ```\n\n2. 建立並啟動虛擬環境：\n   ```\n   python -m venv venv\n   source venv/bin/activate  # 在Windows上使用 venv\\Scripts\\activate\n   ```\n\n3. 安裝所需類別庫：\n   ```\n   pip install -r requirements.txt\n   ```\n\n4. 執行爬蟲：\n   ```\n   python src/crawler.py\n   ```\n"
         }
     },
     {
-        "file_path": "c:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.txt",
-        "file_id": "2a4c51cf0986fe8a7a6791b6aad912f39f8898e6",
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test_crawler.py",
+        "file_id": "cde95ad98e672663dbb043408a0d5bc9f6118bea",
+        "content": null
+    },
+    {
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\__init__.py",
+        "file_id": "9ae0dcaa68f6cf4aed70f68ee5bc179baf4b0c88",
+        "content": null
+    },
+    {
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.txt",
+        "file_id": "c7fb8a731f122665a068a80c202443cbf1b5e7fe",
         "content": {
             "text": "This is a test TXT file."
         }
     },
     {
-        "file_path": "c:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test_crawler.py",
-        "file_id": "8c74655b632a5a0a3c2cd25a5331378bcf26cf63",
-        "content": null
-    },
-    {
-        "file_path": "c:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\__init__.py",
-        "file_id": "ff205fb1d080a2a9eb204017bc3ac81f7c17029d",
-        "content": null
-    },
-    {
-        "file_path": "c:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.xlsx",
-        "file_id": "896277fa5acfbf03fc71f29563ea86d3dfe898b0",
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.xlsx",
+        "file_id": "c41c5f1dffc33f1d5a1e6125f41bc4bf669310c7",
         "content": [
             {
                 "sheet_name": "Sheet1",
@@ -38,25 +38,8 @@
         ]
     },
     {
-        "file_path": "c:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.pdf",
-        "file_id": "d4df4da577c724370e244ad7ea9a6c89314cee1d",
-        "content": {
-            "text": [
-                {
-                    "text": "這是PDF的第1頁內容",
-                    "page_number": 1
-                },
-                {
-                    "text": "這是PDF的第2頁內容",
-                    "page_number": 2
-                }
-            ],
-            "tables": []
-        }
-    },
-    {
-        "file_path": "c:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\實際目錄\\每季維護紀錄表2023.xlsx",
-        "file_id": "16fc046a439be5c30534fc210ce80d6f4fc0d4a8",
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\實際目錄\\每季維護紀錄表2023.xlsx",
+        "file_id": "2d803692014a59f6104021783602a916d94318c7",
         "content": [
             {
                 "sheet_name": "202301-03維護表",
@@ -77,8 +60,25 @@
         ]
     },
     {
-        "file_path": "c:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\實際目錄\\每季維護紀錄表2022.xlsx",
-        "file_id": "af02002d5791922dea782f19753098d710f95b1f",
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.pdf",
+        "file_id": "0fd27c81558488625344405aa6af6c68c885dcef",
+        "content": {
+            "text": [
+                {
+                    "text": "這是PDF的第1頁內容",
+                    "page_number": 1
+                },
+                {
+                    "text": "這是PDF的第2頁內容",
+                    "page_number": 2
+                }
+            ],
+            "tables": []
+        }
+    },
+    {
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\實際目錄\\每季維護紀錄表2022.xlsx",
+        "file_id": "1677622a81e46eafaa4e0fa75d61c5ffaaf7148a",
         "content": [
             {
                 "sheet_name": "202201-03維護表",
@@ -123,8 +123,8 @@
         ]
     },
     {
-        "file_path": "c:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.docx",
-        "file_id": "9177be3cba11d366b9f350715d641c2e24e49d4a",
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\test.docx",
+        "file_id": "5bed2a53ca38102cbbb9c81501eade6d69843cd5",
         "content": {
             "text": [
                 {
@@ -140,8 +140,8 @@
         }
     },
     {
-        "file_path": "c:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\實際目錄\\故障情況.docx",
-        "file_id": "44cd5ce608f3911ca06c0e994acbd2f6b73617be",
+        "file_path": "C:\\Users\\user\\我的雲端硬碟\\KnowledgeBaseCrawler\\test\\實際目錄\\故障情況.docx",
+        "file_id": "7551a763d2afe4c9b28816fabad1a8cbe14057a3",
         "content": {
             "text": [
                 {

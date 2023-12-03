@@ -45,18 +45,15 @@ class FileExtractor:
         return any(item['file_id'] == file_id for item in existing_data)
 
     def process_files(self):
-        # 在日志文件中记录分隔线
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        separator = '=' * 20 + f' {current_time} ' + '=' * 20
-        logging.info(separator)
-
+        files_to_process = self.get_files_in_directory(self.crawl_path)
         existing_data = self.load_existing_data()
+        crawled_data, updated_files = self.process_all_files(files_to_process, existing_data)
+        self.write_data_to_files(crawled_data)
+        self.log_updated_files(updated_files)
+
+    def process_all_files(self, files, existing_data):
         crawled_data = []
-        files = self.get_files_in_directory(self.crawl_path)
-
         updated_files = []
-        files = self.get_files_in_directory(self.crawl_path)
-
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = {executor.submit(self.get_local_file_content, file): file for file in files}
             for future in concurrent.futures.as_completed(futures):
@@ -67,13 +64,19 @@ class FileExtractor:
                         print(f"Crawling {file}")
                         crawled_data.append(data)
                         updated_files.append(file)
-                        logging.info(f'Updated file: {file}')
                     else:
                         print('.', end='')
                 except Exception as exc:
                     logging.error(f'File processing generated an exception: {file}, {exc}')
+        return crawled_data, updated_files
 
-        self.write_to_file(crawled_data, None, self.base_output_file_name, self.max_size_mb)
+    def write_data_to_files(self, crawled_data):
+        if crawled_data:
+            self.write_to_file(crawled_data, None, self.base_output_file_name, self.max_size_mb)
+
+    def log_updated_files(self, updated_files):
+        for file in updated_files:
+            logging.info(f'更新檔案：{file}')
 
     @staticmethod
     @lru_cache(maxsize=10000)
@@ -225,9 +228,14 @@ class FileExtractor:
             with open(full_path, 'w', encoding=encoding) as f:
                 json.dump(current_chunk, f, ensure_ascii=False, indent=4)
 
+    def log_process_start(self):
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        separator = '=' * 20 + f' {current_time} ' + '=' * 20
+        logging.info(separator)
+
     def crawl(self):
-        # 使用 process_files 來處理所有文件
-        self.process_files()    # 為了進行Unit test 所以保留這行
+        self.log_process_start()
+        self.process_files()
 
 
 # Main execution
